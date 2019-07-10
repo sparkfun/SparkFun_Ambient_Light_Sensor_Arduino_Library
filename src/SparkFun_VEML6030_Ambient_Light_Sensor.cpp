@@ -34,13 +34,13 @@ bool SparkFun_Ambient_Light::begin( TwoWire &wirePort )
 // are 1/8, 1/4, 1, and 2. The highest setting should only be used if the
 // sensors is behind dark glass, where as the lowest setting should be used in
 // dark rooms. The datasheet suggests always leaving it at around 1/4 or 1/8.
-void SparkFun_Ambient_Light::setGain(double gainVal){
+void SparkFun_Ambient_Light::setGain(float gainVal){
 
   uint16_t bits; 
 
-  if (gainVal == 1)
+  if (gainVal == 1.00)
     bits = 0; 
-  else if (gainVal == 2)
+  else if (gainVal == 2.00)
     bits = 1;
   else if (gainVal == .125)
     bits = 2;
@@ -48,7 +48,7 @@ void SparkFun_Ambient_Light::setGain(double gainVal){
     bits = 3; 
   else
     return; 
-
+  
   _writeRegister(SETTING_REG, GAIN_MASK, bits, GAIN_POS); 
 
 }
@@ -58,18 +58,22 @@ void SparkFun_Ambient_Light::setGain(double gainVal){
 // are 1/8, 1/4, 1, and 2. The highest setting should only be used if the
 // sensors is behind dark glass, where as the lowest setting should be used in
 // dark rooms. The datasheet suggests always leaving it at around 1/4 or 1/8.
-double SparkFun_Ambient_Light::readGain(){
+float SparkFun_Ambient_Light::readGain(){
  
   uint16_t regVal = _readRegister(SETTING_REG); // Get register
   regVal &= (~GAIN_MASK); // Invert the gain mask to _keep_ the gain
   regVal = (regVal >> GAIN_POS); // Move values to front of the line. 
-  
-  if (regVal == 2)
+ 
+  if (regVal == 0)
+    return 1;
+  else if (regVal == 1)
+    return 2;
+  else if (regVal == 2)
     return .125;
   else if (regVal == 3)
     return .25;
   else   
-    return regVal; 
+    return UNKNOWN_ERROR; 
   
 }
 
@@ -86,9 +90,9 @@ void SparkFun_Ambient_Light::setIntegTime(uint16_t time){
   else if (time == 200)
     bits = 1; 
   else if (time == 400)
-    bits = 3; 
+    bits = 2; 
   else if (time == 800)
-    bits = 4; 
+    bits = 3; 
   else if (time == 50)
     bits = 8; 
   else if (time == 25)
@@ -110,7 +114,21 @@ uint16_t SparkFun_Ambient_Light::readIntegTime(){
   uint16_t regVal = _readRegister(SETTING_REG); 
   regVal &= (~INTEG_MASK); 
   regVal = (regVal >> INTEG_POS); 
-  return regVal;
+
+  if (regVal == 0)
+    return 100;
+  else if (regVal == 1)
+    return 200;
+  else if (regVal == 2)
+    return 400;
+  else if (regVal == 3)
+    return 800;
+  else if (regVal == 8)
+    return 50;
+  else if (regVal == 12)
+    return 25;
+  else   
+    return UNKNOWN_ERROR; 
 
 }
 
@@ -142,7 +160,17 @@ uint8_t SparkFun_Ambient_Light::readProtect(){
   uint16_t regVal = _readRegister(SETTING_REG); 
   regVal &= (~PERS_PROT_MASK); 
   regVal = (regVal >> PERS_PROT_POS); 
-  return regVal;
+
+  if (regVal == 0)
+    return 1;
+  else if (regVal == 1)
+    return 2;
+  else if (regVal == 2)
+    return 4;
+  else if (regVal == 3)
+    return 8;
+  else
+    return UNKNOWN_ERROR;
 
 }
 
@@ -238,7 +266,7 @@ void SparkFun_Ambient_Light::setPowSavMode(uint16_t modeVal){
     bits = 1;
   else if (modeVal == 3)
     bits = 2;
-  else if (modeVal == 3)
+  else if (modeVal == 4)
     bits = 3;
   else 
     return; 
@@ -257,7 +285,17 @@ uint8_t SparkFun_Ambient_Light::readPowSavMode(){
   uint16_t regVal = _readRegister(POWER_SAVE_REG); 
   regVal &= (~POW_SAVE_MASK); 
   regVal = (regVal >> PSM_POS); 
-  return regVal;
+  
+  if (regVal == 0)
+    return 1; 
+  else if (regVal == 1)
+    return 2;
+  else if (regVal == 2)
+    return 3;
+  else if (regVal == 3)
+    return 4;
+  else 
+    return UNKNOWN_ERROR;
 
 }
 
@@ -317,7 +355,7 @@ void SparkFun_Ambient_Light::setIntHighThresh(uint32_t luxVal){
 uint32_t SparkFun_Ambient_Light::readLight(){
 
   uint16_t lightBits =  _readRegister(AMBIENT_LIGHT_DATA_REG); 
-  uint8_t currGain = readGain(); 
+  float currGain = readGain(); 
   uint16_t currInteg = readIntegTime();
   uint32_t luxVal = _calculateLux(lightBits, currGain, currInteg); 
 
@@ -337,7 +375,7 @@ uint32_t SparkFun_Ambient_Light::readLight(){
 uint32_t SparkFun_Ambient_Light::readWhiteLight(){
 
   uint16_t lightBits = _readRegister(WHITE_LIGHT_DATA_REG); 
-  double currGain = readGain(); 
+  float currGain = readGain(); 
   uint8_t currInteg = readIntegTime();
   uint32_t luxVal = _calculateLux(lightBits, currGain, currInteg); 
 
@@ -367,17 +405,17 @@ uint32_t SparkFun_Ambient_Light::_luxCompensation(uint32_t _luxVal){
 // to use by using the bit representation of the gain as an index to look up
 // the conversion value in the correct integration time array. It then converts 
 // the value and returns it.  
-uint32_t SparkFun_Ambient_Light::_calculateLux(uint16_t _lightBits, double _gain, uint16_t _integTime){
+uint32_t SparkFun_Ambient_Light::_calculateLux(uint16_t _lightBits, float _gain, uint16_t _integTime){
 
-  double _luxBit; 
+  float _luxBit; 
   uint8_t _convPos;  
 
   // Here the gain is checked to get the position of the conversion value
   // within the integration time arrays. These values also represent the bit
   // values for setting the gain. 
-  if (_gain == 1) 
+  if (_gain == 1.00) 
     _convPos = 0;
-  else if (_gain == 2)
+  else if (_gain == 2.00)
     _convPos = 1; 
   else if (_gain == .125)
     _convPos = 2; 

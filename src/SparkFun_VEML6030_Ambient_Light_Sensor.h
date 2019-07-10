@@ -49,7 +49,7 @@ enum REGISTER_BIT_POSITIONS {
   PSM_POS                = 0x01,
   PERS_PROT_POS          = 0x04,
   INTEG_POS              = 0x06,
-  GAIN_POS               = 0x11,
+  GAIN_POS               = 0xB,
   INT_POS                = 0xE
 
 };
@@ -57,12 +57,12 @@ enum REGISTER_BIT_POSITIONS {
 // Table of lux conversion values depending on the integration time and gain. 
 // The arrays represent the all possible integration times and the index of the
 // arrays represent the register's gain settings. 
-const double eightHIt[]     = {.0036, .0072, .0288, .0576};
-const double fourHIt[]      = {.0072, .0144, .0576, .1152};
-const double twoHIt[]       = {.0144, .0288, .1152, .2304};
-const double oneHIt[]       = {.0288, .0576, .2304, .4608};
-const double fiftyIt[]      = {.0576, .1152, .4608, .9216};
-const double twentyFiveIt[] = {.1152, .2304, .9216, 1.8432};
+const float eightHIt[]     = {.0036, .0072, .0288, .0576};
+const float fourHIt[]      = {.0072, .0144, .0576, .1152};
+const float twoHIt[]       = {.0144, .0288, .1152, .2304};
+const float oneHIt[]       = {.0288, .0576, .2304, .4608};
+const float fiftyIt[]      = {.0576, .1152, .4608, .9216};
+const float twentyFiveIt[] = {.1152, .2304, .9216, 1.8432};
 
 class SparkFun_Ambient_Light
 {  
@@ -77,14 +77,14 @@ class SparkFun_Ambient_Light
     // are 1/8, 1/4, 1, and 2. The highest setting should only be used if the
     // sensors is behind dark glass, where as the lowest setting should be used in
     // dark rooms. The datasheet suggests always leaving it at around 1/4 or 1/8.
-    void setGain(double gainVal);
+    void setGain(float gainVal);
 
     // REG0x00, bits [12:11]
     // This function reads the gain for the Ambient Light Sensor. Possible values
     // are 1/8, 1/4, 1, and 2. The highest setting should only be used if the
     // sensors is behind dark glass, where as the lowest setting should be used in
     // dark rooms. The datasheet suggests always leaving it at around 1/4 or 1/8.
-    double readGain();
+    float readGain();
 
     // REG0x00, bits[9:6]
     // This function sets the integration time (the saturation time of light on the
@@ -201,7 +201,7 @@ class SparkFun_Ambient_Light
     // to use by using the bit representation of the gain as an index to look up
     // the conversion value in the correct integration time array. It then converts 
     // the value and returns it.  
-    uint32_t _calculateLux(uint16_t _lightBits, double _gain, uint16_t _integTime);
+    uint32_t _calculateLux(uint16_t _lightBits, float _gain, uint16_t _integTime);
 
     // This function is used to convert the user's given lux value for the high and
     // low threshold interrupts registers. While the user can provide a number up
