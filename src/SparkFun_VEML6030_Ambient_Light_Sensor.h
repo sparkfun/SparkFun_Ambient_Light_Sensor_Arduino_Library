@@ -57,12 +57,12 @@ enum REGISTER_BIT_POSITIONS {
 // Table of lux conversion values depending on the integration time and gain. 
 // The arrays represent the all possible integration times and the index of the
 // arrays represent the register's gain settings. 
-const double eightHIt     = {.0036, .0072, .0288, .0576};
-const double fourHIt      = {.0072, .0144, .0576, .1152};
-const double twoHIt       = {.0144, .0288, .1152, .2304};
-const double oneHIt       = {.0288, .0576, .2304, .4608};
-const double fiftyIt      = {.0576, .1152, .4608, .9216};
-const double twentyFiveIt = {.1152, .2304, .9216, 1.8432};
+const double eightHIt[]     = {.0036, .0072, .0288, .0576};
+const double fourHIt[]      = {.0072, .0144, .0576, .1152};
+const double twoHIt[]       = {.0144, .0288, .1152, .2304};
+const double oneHIt[]       = {.0288, .0576, .2304, .4608};
+const double fiftyIt[]      = {.0576, .1152, .4608, .9216};
+const double twentyFiveIt[] = {.1152, .2304, .9216, 1.8432};
 
 class SparkFun_Ambient_Light
 {  
@@ -96,7 +96,7 @@ class SparkFun_Ambient_Light
     // This function reads the integration time (the saturation time of light on the
     // sensor) of the ambient light sensor. Higher integration time leads to better
     // resolution but slower refresh times. 
-    uint8_t readIntegTime();
+    uint16_t readIntegTime();
 
     // REG0x00, bits[5:4]
     // This function sets the persistence protect number. 
@@ -141,6 +141,10 @@ class SparkFun_Ambient_Light
     // Light Sensor out of power save mode. 
     void disablePowSave();
 
+    // REG0x03, bit[0]
+    // This function checks to see if power save mode is enabled or disabled. 
+    uint8_t readPowSavEnabled();
+
     // REG0x03, bit[2:1]
     // This function sets the power save mode value. It takes a value of 1-4. Each
     // incrementally higher value descreases the sampling rate of the sensor and so
@@ -155,9 +159,11 @@ class SparkFun_Ambient_Light
     // continually sampling the sensor. 
     uint8_t readPowSavMode();
 
-    // REG0x03, bit[0]
-    // This function checks to see if power save mode is enabled or disabled. 
-    uint8_t readPowSavEnabled();
+    // REG0x06, bits[15:14]
+    // This function reads the interrupt register to see if an interrupt has been
+    // triggered. There are two possible interrupts: a lower limit and upper limit 
+    // threshold, both set by the user.  
+    uint8_t readInterrupt();
 
     // REG0x02, bits[15:0]
     // This function sets the lower limit for the Ambient Light Sensor's interrupt. 
@@ -189,6 +195,13 @@ class SparkFun_Ambient_Light
     // "Illumination values higher than 1000 lx show non-linearity. This
     // non-linearity is the same for all sensors, so a compensation forumla..."
     uint32_t _luxCompensation(uint32_t _luxVal);
+
+    // The lux value of the Ambient Light sensor depends on both the gain and the
+    // integration time settings. This function determines which conversion value
+    // to use by using the bit representation of the gain as an index to look up
+    // the conversion value in the correct integration time array. It then converts 
+    // the value and returns it.  
+    uint32_t _calculateLux(uint16_t _lightBits, double _gain, uint16_t _integTime);
 
     // This function is used to convert the user's given lux value for the high and
     // low threshold interrupts registers. While the user can provide a number up

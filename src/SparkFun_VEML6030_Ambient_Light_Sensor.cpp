@@ -38,13 +38,13 @@ void SparkFun_Ambient_Light::setGain(double gainVal){
 
   uint16_t bits; 
 
-  if (gain == 1)
+  if (gainVal == 1)
     bits = 0; 
-  else if (gain == 2)
+  else if (gainVal == 2)
     bits = 1;
-  else if (gain == .125)
+  else if (gainVal == .125)
     bits = 2;
-  else if (gain == .25)
+  else if (gainVal == .25)
     bits = 3; 
   else
     return; 
@@ -67,8 +67,8 @@ double SparkFun_Ambient_Light::readGain(){
   if (regVal == 2)
     return .125;
   else if (regVal == 3)
-    return .25
-  else:    
+    return .25;
+  else   
     return regVal; 
   
 }
@@ -98,7 +98,6 @@ void SparkFun_Ambient_Light::setIntegTime(uint16_t time){
 
   _writeRegister(SETTING_REG, INTEG_MASK, bits, INTEG_POS);  
   uint8_t regVal = readIntegTime();
-  currInteg = regVal; 
 
 }
 
@@ -106,12 +105,11 @@ void SparkFun_Ambient_Light::setIntegTime(uint16_t time){
 // This function reads the integration time (the saturation time of light on the
 // sensor) of the ambient light sensor. Higher integration time leads to better
 // resolution but slower refresh times. 
-uint8_t SparkFun_Ambient_Light::readIntegTime(){
+uint16_t SparkFun_Ambient_Light::readIntegTime(){
 
-  uint16_t regval = _readRegister(SETTING_REG); 
+  uint16_t regVal = _readRegister(SETTING_REG); 
   regVal &= (~INTEG_MASK); 
   regVal = (regVal >> INTEG_POS); 
-  currInteg = regVal; 
   return regVal;
 
 }
@@ -141,7 +139,7 @@ void SparkFun_Ambient_Light::setProtect(uint8_t protVal){
 // This function reads the persistence protect number. 
 uint8_t SparkFun_Ambient_Light::readProtect(){
 
-  uint16_t regval = _readRegister(SETTING_REG); 
+  uint16_t regVal = _readRegister(SETTING_REG); 
   regVal &= (~PERS_PROT_MASK); 
   regVal = (regVal >> PERS_PROT_POS); 
   return regVal;
@@ -152,7 +150,7 @@ uint8_t SparkFun_Ambient_Light::readProtect(){
 // This function enables the Ambient Light Sensor's interrupt. 
 void SparkFun_Ambient_Light::enableInt(){
 
-  _writeRegister(SETTING_REG, INT_EN_MASK, INT_ENABLE, INT_EN_POS); 
+  _writeRegister(SETTING_REG, INT_EN_MASK, ENABLE, INT_EN_POS); 
 
 }
 
@@ -160,7 +158,7 @@ void SparkFun_Ambient_Light::enableInt(){
 // This function disables the Ambient Light Sensor's interrupt. 
 void SparkFun_Ambient_Light::disableInt(){
 
-  _writeRegister(SETTING_REG, INT_EN_MASK, INT_DISABLE, INT_EN_POS); 
+  _writeRegister(SETTING_REG, INT_EN_MASK, DISABLE, INT_EN_POS); 
 
 }
 
@@ -168,7 +166,7 @@ void SparkFun_Ambient_Light::disableInt(){
 // This function checks if the interrupt is enabled or disabled. 
 uint8_t SparkFun_Ambient_Light::readIntSetting(){
 
-  uint16_t regval = _readRegister(SETTING_REG); 
+  uint16_t regVal = _readRegister(SETTING_REG); 
   regVal &= (~INT_EN_MASK); 
   regVal = (regVal >> INT_EN_POS); 
   return regVal;
@@ -219,7 +217,7 @@ void SparkFun_Ambient_Light::disablePowSave(){
 // This function checks to see if power save mode is enabled or disabled. 
 uint8_t SparkFun_Ambient_Light::readPowSavEnabled(){
 
-  uint16_t regval = _readRegister(POWER_SAVE_REG); 
+  uint16_t regVal = _readRegister(POWER_SAVE_REG); 
   regVal &= (~POW_SAVE_EN_MASK); 
   return regVal;
 
@@ -256,7 +254,7 @@ void SparkFun_Ambient_Light::setPowSavMode(uint16_t modeVal){
 // continually sampling the sensor. 
 uint8_t SparkFun_Ambient_Light::readPowSavMode(){
 
-  uint16_t regval = _readRegister(POWER_SAVE_REG); 
+  uint16_t regVal = _readRegister(POWER_SAVE_REG); 
   regVal &= (~POW_SAVE_MASK); 
   regVal = (regVal >> PSM_POS); 
   return regVal;
@@ -269,7 +267,7 @@ uint8_t SparkFun_Ambient_Light::readPowSavMode(){
 // threshold, both set by the user.  
 uint8_t SparkFun_Ambient_Light::readInterrupt(){
 
-  uint16_t regval = _readRegister(INTERRUPT_REG); 
+  uint16_t regVal = _readRegister(INTERRUPT_REG); 
   regVal &= (~INT_MASK); 
   regVal = (regVal >> INT_POS); 
 
@@ -320,12 +318,13 @@ uint32_t SparkFun_Ambient_Light::readLight(){
 
   uint16_t lightBits =  _readRegister(AMBIENT_LIGHT_DATA_REG); 
   uint8_t currGain = readGain(); 
-  uint8_t currInteg = readIntegTime();
+  uint16_t currInteg = readIntegTime();
   uint32_t luxVal = _calculateLux(lightBits, currGain, currInteg); 
 
-  if (luxVal > 1000) 
-    uint32_t compLux =  _luxCompensation(luxVal); 
+  if (luxVal > 1000) {
+    uint32_t compLux = _luxCompensation(luxVal); 
     return compLux; 
+  }
   else
     return luxVal;
 
@@ -342,9 +341,10 @@ uint32_t SparkFun_Ambient_Light::readWhiteLight(){
   uint8_t currInteg = readIntegTime();
   uint32_t luxVal = _calculateLux(lightBits, currGain, currInteg); 
 
-  if (luxVal > 1000) 
-    uint32_t compLux =  _luxCompensation(luxVal); 
+  if (luxVal > 1000) {
+    uint32_t compLux = _luxCompensation(luxVal); 
     return compLux; 
+  }
   else
     return luxVal;
 
@@ -367,7 +367,7 @@ uint32_t SparkFun_Ambient_Light::_luxCompensation(uint32_t _luxVal){
 // to use by using the bit representation of the gain as an index to look up
 // the conversion value in the correct integration time array. It then converts 
 // the value and returns it.  
-uint32_t SparkFun_Ambient_Light::_calculateLux(uint16_t _lightBits, double _gain, uint8_t _integTime){
+uint32_t SparkFun_Ambient_Light::_calculateLux(uint16_t _lightBits, double _gain, uint16_t _integTime){
 
   double _luxBit; 
   uint8_t _convPos;  
@@ -423,7 +423,7 @@ uint16_t SparkFun_Ambient_Light::_convLuxBits(uint32_t _luxVal){
   // 500 luxVal * .546125 = 273.0626
   // Rounded to 273 when assigned
   // Written to register as 0000 0001 0001 0001
-  uint16_t luxBits = luxVal * (.546125);  
+  uint16_t luxBits = _luxVal * (.546125);  
 }
 
 // This function writes to a 16 bit register. Paramaters include the register's address, a mask 
@@ -435,7 +435,7 @@ void SparkFun_Ambient_Light::_writeRegister(uint8_t _wReg, uint16_t _mask,\
   
   uint16_t _i2cWrite; 
 
-  _i2cWrite = readRegister(_wReg); // Get the current value of the register
+  _i2cWrite = _readRegister(_wReg); // Get the current value of the register
   _i2cWrite &= _mask; // Mask the position we want to write to.
   _i2cWrite |= (_bits << _startPosition);  // Place the given bits to the variable
   _i2cPort->beginTransmission(_address); // Start communication.
