@@ -169,11 +169,19 @@ class SparkFun_Ambient_Light
     // This function sets the lower limit for the Ambient Light Sensor's interrupt. 
     // It takes a lux value as its paramater.
     void setIntLowThresh(uint32_t luxVal);
-
+    
     // REG0x02, bits[15:0]
+    // This function reads the lower limit for the Ambient Light Sensor's interrupt. 
+    uint32_t readLowThresh();
+
+    // REG0x01, bits[15:0]
     // This function sets the upper limit for the Ambient Light Sensor's interrupt. 
     // It takes a lux value as its paramater.
     void setIntHighThresh(uint32_t luxVal);
+
+    // REG0x01, bits[15:0]
+    // This function reads the upper limit for the Ambient Light Sensor's interrupt. 
+    uint32_t readHighThresh();
 
     // REG[0x04], bits[15:0]
     // This function gets the sensor's ambient light's lux value. The lux value is
@@ -194,6 +202,7 @@ class SparkFun_Ambient_Light
     // This function compensates for lux values over 1000. From datasheet:
     // "Illumination values higher than 1000 lx show non-linearity. This
     // non-linearity is the same for all sensors, so a compensation forumla..."
+    // etc. etc. 
     uint32_t _luxCompensation(uint32_t _luxVal);
 
     // The lux value of the Ambient Light sensor depends on both the gain and the
@@ -201,13 +210,12 @@ class SparkFun_Ambient_Light
     // to use by using the bit representation of the gain as an index to look up
     // the conversion value in the correct integration time array. It then converts 
     // the value and returns it.  
-    uint32_t _calculateLux(uint16_t _lightBits, float _gain, uint16_t _integTime);
+    uint32_t _calculateLux(uint16_t _lightBits);
 
-    // This function is used to convert the user's given lux value for the high and
-    // low threshold interrupts registers. While the user can provide a number up
-    // to 120,000, the register only holds 16 bits and so is converted to write the
-    // proper value. 
-    uint16_t _convLuxBits(uint32_t _luxVal);
+    // This function does the opposite above. I belive the interrupt values are
+    // also set with the given gain and intergration times settings, though I don't
+    // know because the datasheet doesn't mention anything on the issue.
+    uint16_t _calculateBits(uint32_t _luxVal);
 
     // This function writes to a 16 bit register. Paramaters include the register's address, a mask 
     // for bits that are ignored, the bits to write, and the bits' starting

@@ -306,7 +306,7 @@ uint8_t SparkFun_Ambient_Light::readPowSavMode(){
 uint8_t SparkFun_Ambient_Light::readInterrupt(){
 
   uint16_t regVal = _readRegister(INTERRUPT_REG); 
-  regVal &= (~INT_MASK); 
+  regVal &= INT_MASK; 
   regVal = (regVal >> INT_POS); 
 
   if (regVal == 0)
@@ -328,13 +328,22 @@ void SparkFun_Ambient_Light::setIntLowThresh(uint32_t luxVal){
   if (luxVal < 0 || luxVal > 120000)
     return;
   
-  uint16_t luxBits = _convLuxBits(luxVal);
-
+  uint16_t luxBits = _calculateBits(luxVal); 
   _writeRegister(L_THRESH_REG, THRESH_MASK, luxBits, NO_SHIFT);
 
 }
 
 // REG0x02, bits[15:0]
+// This function reads the lower limit for the Ambient Light Sensor's interrupt. 
+uint32_t SparkFun_Ambient_Light::readLowThresh(){
+
+  uint16_t threshVal = _readRegister(L_THRESH_REG);
+  uint32_t threshLux = _calculateLux(threshVal); 
+  return threshLux; 
+
+}
+
+// REG0x01, bits[15:0]
 // This function sets the upper limit for the Ambient Light Sensor's interrupt. 
 // It takes a lux value as its paramater.
 void SparkFun_Ambient_Light::setIntHighThresh(uint32_t luxVal){
@@ -342,9 +351,18 @@ void SparkFun_Ambient_Light::setIntHighThresh(uint32_t luxVal){
   if (luxVal < 0 || luxVal > 120000)
     return;
 
-  uint16_t luxBits = _convLuxBits(luxVal);
-  
+  uint16_t luxBits = _calculateBits(luxVal); 
   _writeRegister(H_THRESH_REG, THRESH_MASK, luxBits, NO_SHIFT);
+
+}
+
+// REG0x01, bits[15:0]
+// This function reads the upper limit for the Ambient Light Sensor's interrupt. 
+uint32_t SparkFun_Ambient_Light::readHighThresh(){
+
+  uint16_t threshVal = _readRegister(H_THRESH_REG);
+  uint32_t threshLux = _calculateLux(threshVal); 
+  return threshLux; 
 
 }
 
@@ -355,9 +373,7 @@ void SparkFun_Ambient_Light::setIntHighThresh(uint32_t luxVal){
 uint32_t SparkFun_Ambient_Light::readLight(){
 
   uint16_t lightBits =  _readRegister(AMBIENT_LIGHT_DATA_REG); 
-  float currGain = readGain(); 
-  uint16_t currInteg = readIntegTime();
-  uint32_t luxVal = _calculateLux(lightBits, currGain, currInteg); 
+  uint32_t luxVal = _calculateLux(lightBits); 
 
   if (luxVal > 1000) {
     uint32_t compLux = _luxCompensation(luxVal); 
@@ -375,9 +391,7 @@ uint32_t SparkFun_Ambient_Light::readLight(){
 uint32_t SparkFun_Ambient_Light::readWhiteLight(){
 
   uint16_t lightBits = _readRegister(WHITE_LIGHT_DATA_REG); 
-  float currGain = readGain(); 
-  uint8_t currInteg = readIntegTime();
-  uint32_t luxVal = _calculateLux(lightBits, currGain, currInteg); 
+  uint32_t luxVal = _calculateLux(lightBits); 
 
   if (luxVal > 1000) {
     uint32_t compLux = _luxCompensation(luxVal); 
@@ -391,11 +405,14 @@ uint32_t SparkFun_Ambient_Light::readWhiteLight(){
 // This function compensates for lux values over 1000. From datasheet:
 // "Illumination values higher than 1000 lx show non-linearity. This
 // non-linearity is the same for all sensors, so a compensation forumla..."
+// etc. etc. 
 uint32_t SparkFun_Ambient_Light::_luxCompensation(uint32_t _luxVal){ 
 
   // Polynomial is pulled from pg 10 of the datasheet. 
-  uint32_t _compLux = (.00000000000060135 *(pow(_luxVal, 4))) - (.0000000093924 * (pow(_luxVal, 3)))
-                        + (.000081488 * (pow(_luxVal,2))) + (1.0023 * _luxVal);
+  uint32_t _compLux = (.00000000000060135 * (pow(_luxVal, 4))) - 
+                      (.0000000093924 * (pow(_luxVal, 3))) + 
+                      (.000081488 * (pow(_luxVal,2))) + 
+                      (1.0023 * _luxVal);
   return _compLux;
 
 }
@@ -405,10 +422,13 @@ uint32_t SparkFun_Ambient_Light::_luxCompensation(uint32_t _luxVal){
 // to use by using the bit representation of the gain as an index to look up
 // the conversion value in the correct integration time array. It then converts 
 // the value and returns it.  
-uint32_t SparkFun_Ambient_Light::_calculateLux(uint16_t _lightBits, float _gain, uint16_t _integTime){
+uint32_t SparkFun_Ambient_Light::_calculateLux(uint16_t _lightBits){
 
-  float _luxBit; 
+  float _luxConv; 
   uint8_t _convPos;  
+
+  float _gain = readGain(); 
+  uint16_t _integTime = readIntegTime();
 
   // Here the gain is checked to get the position of the conversion value
   // within the integration time arrays. These values also represent the bit
@@ -427,41 +447,74 @@ uint32_t SparkFun_Ambient_Light::_calculateLux(uint16_t _lightBits, float _gain,
   // Here we check the integration time which determines which array we probe
   // at the position determined above.
   if(_integTime == 800)
-    _luxBit = eightHIt[_convPos]; 
+    _luxConv = eightHIt[_convPos]; 
   else if(_integTime == 400)
-    _luxBit = fourHIt[_convPos];
+    _luxConv = fourHIt[_convPos];
   else if(_integTime == 200)
-    _luxBit = twoHIt[_convPos];
+    _luxConv = twoHIt[_convPos];
   else if(_integTime == 100)
-    _luxBit = oneHIt[_convPos];
+    _luxConv = oneHIt[_convPos];
   else if(_integTime == 50)
-    _luxBit = fiftyIt[_convPos];
+    _luxConv = fiftyIt[_convPos];
   else if(_integTime == 25)
-    _luxBit = twentyFiveIt[_convPos];
+    _luxConv = twentyFiveIt[_convPos];
   else
     return UNKNOWN_ERROR; 
 
-  // Multiply the value of the _lightBits by the conversion value and return
+  // Multiply the value from the 16 bit register to the conversion value and return
   // it. 
-  uint32_t _calculatedLux = (_luxBit * _lightBits);
+  uint32_t _calculatedLux = (_luxConv * _lightBits);
   return _calculatedLux;
 
 }
 
-// This function is used to convert the user's given lux value for the high and
-// low threshold interrupts registers. While the user can provide a number up
-// to 120,000, the register only holds 16 bits and so is converted to write the
-// proper value. 
-uint16_t SparkFun_Ambient_Light::_convLuxBits(uint32_t _luxVal){
 
-  // Max lux value of 120,000 is represented in 16 bits or 65,535 max decimal. 
-  // 120,000/65,535 = .546125. The end result will be rounded when assigned to
-  // luxVal. 
-  // Example: 
-  // 500 luxVal * .546125 = 273.0626
-  // Rounded to 273 when assigned
-  // Written to register as 0000 0001 0001 0001
-  uint16_t luxBits = _luxVal * (.546125);  
+// This function does the opposite above. I belive the interrupt values are
+// also set with the given gain and intergration times settings, though I don't
+// know because the datasheet doesn't mention anything on the issue.
+uint16_t SparkFun_Ambient_Light::_calculateBits(uint32_t _luxVal){
+
+  float _luxConv; 
+  uint8_t _convPos;  
+
+  float _gain = readGain();
+  float _integTime = readIntegTime();
+  // Here the gain is checked to get the position of the conversion value
+  // within the integration time arrays. These values also represent the bit
+  // values for setting the gain. 
+  if (_gain == 1.00) 
+    _convPos = 0;
+  else if (_gain == 2.00)
+    _convPos = 1; 
+  else if (_gain == .125)
+    _convPos = 2; 
+  else if (_gain == .25)
+    _convPos = 3; 
+  else
+    return UNKNOWN_ERROR;
+
+  // Here we check the integration time which determines which array we probe
+  // at the position determined above.
+  if(_integTime == 800)
+    _luxConv = eightHIt[_convPos]; 
+  else if(_integTime == 400)
+    _luxConv = fourHIt[_convPos];
+  else if(_integTime == 200)
+    _luxConv = twoHIt[_convPos];
+  else if(_integTime == 100)
+    _luxConv = oneHIt[_convPos];
+  else if(_integTime == 50)
+    _luxConv = fiftyIt[_convPos];
+  else if(_integTime == 25)
+    _luxConv = twentyFiveIt[_convPos];
+  else
+    return UNKNOWN_ERROR; 
+
+  // Divide the value of lux bythe conversion value and return
+  // it. 
+  uint16_t _calculatedBits = (_luxVal/_luxConv);
+  return _calculatedBits;
+
 }
 
 // This function writes to a 16 bit register. Paramaters include the register's address, a mask 

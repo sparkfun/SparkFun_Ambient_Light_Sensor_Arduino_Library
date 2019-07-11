@@ -4,7 +4,10 @@
   also walk you through setting the gain and integration time that allow for
   different ranges of lux values. For example using the default gain of 100ms
   gives you a maximum reading of 30,199 Lux. This is great for daylight
-  readings but not DIRECT sun. 
+  readings but not DIRECT sun. Higher integration times mean higher
+  resoultions but lower lux values and vice versa: the lowest integration time
+  and lowest gain should be used for mid day direct light. Check our hookup
+  guide for more information. 
   
   SparkFun Electronics
   Author: Elias Santistevan
@@ -30,8 +33,9 @@ SparkFun_Ambient_Light light(AL_ADDR);
 // glass.
 float gain = .125;
 
-// Possible integration times: 800, 400, 200, 100, 50, 25
-int time = 800;
+// Possible integration times in milliseconds: 800, 400, 200, 100, 50, 25
+// Higher times give higher resolutions and should be used in darker light. 
+int time = 100
 long luxVal = 0; 
 
 void setup(){
@@ -40,10 +44,13 @@ void setup(){
   Serial.begin(115200);
 
   if(light.begin())
-    Serial.println("Ready to read some light!"); 
+    Serial.println("Ready to sense some light!"); 
   else
     Serial.println("Could not communicate with the sensor!");
 
+  // Again the gain and integration times determine the resolution of the lux
+  // value, and give different ranges of possible light readings. Check out
+  // hoookup guide for more info. 
   light.setGain(gain);
   light.setIntegTime(time);
 
