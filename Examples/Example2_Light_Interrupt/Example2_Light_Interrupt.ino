@@ -1,8 +1,11 @@
 /*
   This example code will walk you through how to set the interrupts on the
-  SparkFun VEML6030 Ambient Light Sensor. 
+  SparkFun VEML6030 Ambient Light Sensor. You can set both high and low
+  thresholds as well as how many values must be below or above the threshold
+  before an interrupt occurs. This example does require the interrupt pin on
+  the product to be connected a pin on your micro-controller. 
   
-  SparkFun Electronics
+  SparkFun Electronics 
   Author: Elias Santistevan
   Date: July 2019
 
@@ -16,6 +19,7 @@
 #include <Wire.h>
 #include "SparkFun_VEML6030_Ambient_Light_Sensor.h"
 
+// Close the address jumper on the product for addres 0x10.
 #define AL_ADDR 0x48
 
 SparkFun_Ambient_Light light(AL_ADDR);
@@ -46,9 +50,6 @@ void setup(){
   Serial.begin(115200);
   pinMode(intPin, INPUT);
   
-Serial.println(float(time));
-Serial.println(time);
-Serial.println(float("1"));
   if(light.begin())
     Serial.println("Ready to sense some light!"); 
   else
@@ -57,7 +58,7 @@ Serial.println(float("1"));
   // Again the gain and integration times determine the resolution of the lux
   // value, and give different ranges of possible light readings. Check out
   // hoookup guide for more info. The gain/integration time also affects 
-  // interrupt threshold settings so ALWAYS set these first. 
+  // interrupt threshold settings so ALWAYS set gain and time first. 
   light.setGain(gain);
   light.setIntegTime(time);
 
@@ -73,7 +74,8 @@ Serial.println(float("1"));
   light.setIntLowThresh(lowThresh);
   light.setIntHighThresh(highThresh);
   // Let's check that they were set correctly. 
-  // There are some rounding issues inherently.
+  // There are some rounding issues inherently in the IC's design so your lux
+  // may be one off. 
   Serial.print("Low Threshold: ");
   long lowVal = light.readLowThresh();
   Serial.print(lowVal);
