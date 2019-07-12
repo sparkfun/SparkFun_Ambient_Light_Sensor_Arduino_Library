@@ -38,7 +38,7 @@ float gain = .125;
 
 // Possible integration times in milliseconds: 800, 400, 200, 100, 50, 25
 // Higher times give higher resolutions and should be used in darker light. 
-int time = 100;
+int time = 400;
 long luxVal = 0; 
 
 // Power save mode, options range from 1-4. 
@@ -106,6 +106,6 @@ void loop(){
   Serial.print(luxVal);
   Serial.println(" Lux");  
   // Sampling at the rate specified in the hookup guide power save mode table. 
-  delay(1100);
+  delay(2400);
 
 }

@@ -1,14 +1,14 @@
-SparkFun Qwiic RFID Reader Arduino Library 
+SparkFun Ambient Light Sensor - VEML6030 (Qwiic) 
 ========================================
-[![SparkFun Qwiic RFID Reader](https://cdn.sparkfun.com/assets/parts/1/3/6/1/0/15191-SparkFun_RFID_Qwiic_Reader-01a.jpg)
-*SparkFun Qwiic RFID Reader (SEN-15191)*](https://www.sparkfun.com/products/15191)
+[![SparkFun Ambient Light Senstor](https://cdn.sparkfun.com/assets/parts/1/3/9/9/6/15436-SparkFun_Ambient_Light_Sensor_-_VEML6030__Qwiic_-01.jpg)]
 
-The SparkFun Qwiic RFID Reader is a simple I-squared-C based RFID Reader. 
-It can hold up to 20 unique RFID tag IDs and their scan times, while also
-providing an interrupt pin for easy on the fly tag ID retrieval. The SparkFun
-Qwiic RFID Reader Arduino Library gives easy to use functions to get scanned
-RFID tag IDs, their scan times, or getting all 20 IDs at once and their scan
-times. Better yet, each function is demoed in the provided example code!
+The SparkFun Ambient Light Sensor - VEML6030 (Qwiic) is an I&2;C enabled
+ambient light sensor with high sensitivity and high accuracy. It reads ambient
+light in Lux and boasts a number of nice features including: the ability to set
+high and low thresholds for the optional interrupt, power saving features that enable
+single digit micro-amp current draw, and a readable  range from zero to 120,000 Lux. The
+library gives full access to all features and includes example code
+demonstrating all its' abilities. 
 
 Repository Contents
 -------------------
@@ -25,7 +25,7 @@ Documentation
 
 Products that use this library
 --------------
-* [SEN-15191](https://www.sparkfun.com/products/15191) - SparkFun Qwiic RFID Reader
+* [SEN-15436](https://www.sparkfun.com/products/15436) - SparkFun Ambient LIght Sensor - VEML6030 (Qwiic)
 
 License Information
 -------------------

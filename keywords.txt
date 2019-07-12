@@ -1,23 +1,39 @@
 ########################################################
-# Syntax Coloring Map for SparkFun  #
+# Syntax Coloring Map for SparkFun Qwiic Ambient light Sensor 
 ########################################################
 # Class
 ###################################################################
 
-Qwiic_				KEYWORD1
+SparkFun_Ambient_Light				KEYWORD1
 
 ###################################################################
 # Methods and Functions
 ###################################################################
 
 begin					KEYWORD2
-    			KEYWORD2
-			KEYWORD2
-				KEYWORD2
-				KEYWORD2
-		KEYWORD2
-				KEYWORD2
-			KEYWORD2
+setGain   			KEYWORD2
+readGain		KEYWORD2
+setIntegTime				KEYWORD2
+readIntegTime				KEYWORD2
+setProtect		KEYWORD2
+readProtect				KEYWORD2
+enableInt			KEYWORD2
+disableInt			KEYWORD2
+readIntSetting			KEYWORD2
+shutDown			KEYWORD2
+powerOn			KEYWORD2
+enablePowSave			KEYWORD2
+diablePowSave			KEYWORD2
+readPowSavEnabled			KEYWORD2
+setPowSavMode			KEYWORD2
+readPowSavMode			KEYWORD2
+readInterrupt			KEYWORD2
+setIntLowThresh			KEYWORD2
+readLowThresh			KEYWORD2
+setIntHighThresh			KEYWORD2
+readHighThresh			KEYWORD2
+readLight			KEYWORD2
+readWhiteLight			KEYWORD2
 
 ###################################################################
 # Constants
