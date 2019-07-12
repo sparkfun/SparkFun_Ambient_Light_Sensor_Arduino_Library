@@ -1,6 +1,8 @@
 SparkFun Ambient Light Sensor - VEML6030 (Qwiic) 
 ========================================
-[![SparkFun Ambient Light Senstor](https://cdn.sparkfun.com/assets/parts/1/3/9/9/6/15436-SparkFun_Ambient_Light_Sensor_-_VEML6030__Qwiic_-01.jpg)]
+![SparkFun Ambient Light Senstor](https://cdn.sparkfun.com/assets/parts/1/3/9/9/6/15436-SparkFun_Ambient_Light_Sensor_-_VEML6030__Qwiic_-01.jpg)
+
+[*SparkFun Ambient LIght Sensor - VEML6030 (Qwiic) (SEN-15436)*](https://www.sparkfun.com/products/15436)
 
 The SparkFun Ambient Light Sensor - VEML6030 (Qwiic) is an I&2;C enabled
 ambient light sensor with high sensitivity and high accuracy. It reads ambient
