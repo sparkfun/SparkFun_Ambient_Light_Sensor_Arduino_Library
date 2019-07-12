@@ -80,7 +80,7 @@ float SparkFun_Ambient_Light::readGain(){
 // REG0x00, bits[9:6]
 // This function sets the integration time (the saturation time of light on the
 // sensor) of the ambient light sensor. Higher integration time leads to better
-// resolution but slower refresh times. 
+// resolution but slower sensor refresh times. 
 void SparkFun_Ambient_Light::setIntegTime(uint16_t time){ 
  
   uint16_t bits;
@@ -108,7 +108,7 @@ void SparkFun_Ambient_Light::setIntegTime(uint16_t time){
 // REG0x00, bits[9:6]
 // This function reads the integration time (the saturation time of light on the
 // sensor) of the ambient light sensor. Higher integration time leads to better
-// resolution but slower refresh times. 
+// resolution but slower sensor refresh times. 
 uint16_t SparkFun_Ambient_Light::readIntegTime(){
 
   uint16_t regVal = _readRegister(SETTING_REG); 
@@ -469,9 +469,11 @@ uint32_t SparkFun_Ambient_Light::_calculateLux(uint16_t _lightBits){
 }
 
 
-// This function does the opposite above. I belive the interrupt values are
-// also set with the given gain and intergration times settings, though I don't
-// know because the datasheet doesn't mention anything on the issue.
+// This function does the opposite calculation then the function above. The interrupt
+// threshold values given by the user are dependent on the gain and
+// intergration time settings. As a result the lux value needs to be
+// calculated with the current settings and this function accomplishes
+// that.  
 uint16_t SparkFun_Ambient_Light::_calculateBits(uint32_t _luxVal){
 
   float _luxConv; 

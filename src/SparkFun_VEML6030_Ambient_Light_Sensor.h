@@ -13,6 +13,7 @@
 #define INT_LOW       0x02
 #define UNKNOWN_ERROR 0xFF
 
+// 7-Bit address options
 const uint8_t defAddr = 0x48;
 const uint8_t altAddr = 0x10;
 
@@ -29,7 +30,7 @@ enum VEML6030_16BIT_REGISTERS {
 };
 
 enum VEML6030_16BIT_REG_MASKS {
-  
+ 
   THRESH_MASK            = 0x0,
   GAIN_MASK              = 0xE7FF,
   INTEG_MASK             = 0xFC3F,
@@ -56,7 +57,8 @@ enum REGISTER_BIT_POSITIONS {
 
 // Table of lux conversion values depending on the integration time and gain. 
 // The arrays represent the all possible integration times and the index of the
-// arrays represent the register's gain settings. 
+// arrays represent the register's gain settings, which is directly analgous to
+// their bit representations. 
 const float eightHIt[]     = {.0036, .0072, .0288, .0576};
 const float fourHIt[]      = {.0072, .0144, .0576, .1152};
 const float twoHIt[]       = {.0144, .0288, .1152, .2304};
@@ -89,21 +91,23 @@ class SparkFun_Ambient_Light
     // REG0x00, bits[9:6]
     // This function sets the integration time (the saturation time of light on the
     // sensor) of the ambient light sensor. Higher integration time leads to better
-    // resolution but slower refresh times. 
+    // resolution but slower sensor refresh times. 
     void setIntegTime(uint16_t time);
 
     // REG0x00, bits[9:6]
     // This function reads the integration time (the saturation time of light on the
     // sensor) of the ambient light sensor. Higher integration time leads to better
-    // resolution but slower refresh times. 
+    // resolution but slower sensor refresh times. 
     uint16_t readIntegTime();
 
     // REG0x00, bits[5:4]
-    // This function sets the persistence protect number. 
+    // This function sets the persistence protect number i.e. the number of
+    // values needing to crosh the interrupt thresholds.
     void setProtect(uint8_t protVal);
 
     // REG0x00, bits[5:4]
-    // This function reads the persistence protect number. 
+    // This function reads the persistence protect number i.e. the number of 
+    // values needing to crosh the interrupt thresholds.
     uint8_t readProtect();
 
     // REG0x00, bit[1]
@@ -212,9 +216,11 @@ class SparkFun_Ambient_Light
     // the value and returns it.  
     uint32_t _calculateLux(uint16_t _lightBits);
 
-    // This function does the opposite above. I belive the interrupt values are
-    // also set with the given gain and intergration times settings, though I don't
-    // know because the datasheet doesn't mention anything on the issue.
+    // This function does the opposite calculation then the function above. The interrupt
+    // threshold values given by the user are dependent on the gain and
+    // intergration time settings. As a result the lux value needs to be
+    // calculated with the current settings and this function accomplishes
+    // that.  
     uint16_t _calculateBits(uint32_t _luxVal);
 
     // This function writes to a 16 bit register. Paramaters include the register's address, a mask 
