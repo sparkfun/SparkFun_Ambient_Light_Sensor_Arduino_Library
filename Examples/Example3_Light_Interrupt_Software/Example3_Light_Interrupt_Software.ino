@@ -2,7 +2,7 @@
   This example code will walk you through how to set the interrupts on the
   SparkFun VEML6030 Ambient Light Sensor. You can set both high and low
   thresholds as well as how many values must be below or above the threshold
-  before an interrupt occurs. This example does require the interrupt pin on
+  before an interrupt occurs. This example does not require the interrupt pin on
   the product to be connected a pin on your micro-controller. 
   
   SparkFun Electronics 
@@ -41,14 +41,13 @@ long lowThresh = 20;
 long highThresh = 400; 
 int numbValues = 1;
 
-// Interrupt pin
-int intPin = 3; 
+// Interrupt variable
+int interrupt; 
 
 void setup(){
 
   Wire.begin();
   Serial.begin(115200);
-  pinMode(intPin, INPUT);
   
   if(light.begin())
     Serial.println("Ready to sense some light!"); 
@@ -83,12 +82,6 @@ void setup(){
   long highVal = light.readHighThresh();
   Serial.println(highVal);
 
-  // Now we enable the interrupt, now that he thresholds are set. 
-  light.enableInt();
-  Serial.print("Is interrupt enabled: ");
-  light.readIntSetting() ? Serial.println("Yes") : Serial.println("No");
-
-
   // This setting modifies the number of times a value has to fall below or
   // above the threshold before the interrupt fires! Values include 1, 2, 4 and
   // 8. 
@@ -96,6 +89,17 @@ void setup(){
   Serial.print("Number of values that must fall below/above threshold before interupt occurrs: ");
   int protectVal = light.readProtect();
   Serial.println(protectVal);
+
+  // Now we enable the interrupt, now that he thresholds are set. 
+  light.enableInt();
+  Serial.print("Is interrupt enabled: ");
+  int intVal = light.readIntSetting(); 
+  if (intVal == 1)
+    Serial.println("Yes"); 
+  else 
+    Serial.println("No");
+
+
   Serial.println("-------------------------------------------------");
   
   // Give some time to read our settings on startup.
@@ -109,14 +113,12 @@ void loop(){
   Serial.print(luxVal);
   Serial.println(" Lux");  
 
-  if (digitalRead(intPin) == LOW){
-    int intVal = light.readInterrupt();
-    if (intVal == 1)
-      Serial.println("High threshold crossed!");
-    else if (intVal == 2){
-      Serial.println("Low threshold crossed!");
-    }
-  }
-
+  
+  interrupt = light.readInterrupt();
+  if (interrupt == 1)
+    Serial.println("High threshold crossed!");
+  else if (interrupt == 2)
+    Serial.println("Low threshold crossed!");
+    
   delay(200);
 }

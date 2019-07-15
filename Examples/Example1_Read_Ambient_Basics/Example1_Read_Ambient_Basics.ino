@@ -35,7 +35,7 @@ float gain = .125;
 
 // Possible integration times in milliseconds: 800, 400, 200, 100, 50, 25
 // Higher times give higher resolutions and should be used in darker light. 
-int time = 100
+int time = 100;
 long luxVal = 0; 
 
 void setup(){
