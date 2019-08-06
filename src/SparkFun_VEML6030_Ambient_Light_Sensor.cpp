@@ -63,7 +63,7 @@ float SparkFun_Ambient_Light::readGain(){
   uint16_t regVal = _readRegister(SETTING_REG); // Get register
   regVal &= (~GAIN_MASK); // Invert the gain mask to _keep_ the gain
   regVal = (regVal >> GAIN_POS); // Move values to front of the line. 
- 
+   
   if (regVal == 0)
     return 1;
   else if (regVal == 1)
