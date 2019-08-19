@@ -549,7 +549,7 @@ uint16_t SparkFun_Ambient_Light::_readRegister(uint8_t _reg)
   _i2cPort->beginTransmission(_address); 
   _i2cPort->write(_reg); // Moves pointer to register.
   _i2cPort->endTransmission(false); // 'False' here sends a restart message so that bus is not released
-  _i2cPort->requestFrom(_address, 2); // Two reads for 16 bit registers
+  _i2cPort->requestFrom(_address, static_cast<uint8_t>(2)); // Two reads for 16 bit registers
   _regValue = _i2cPort->read(); // LSB
   _regValue |= uint16_t(_i2cPort->read()) << 8; //MSB
   return(_regValue);
