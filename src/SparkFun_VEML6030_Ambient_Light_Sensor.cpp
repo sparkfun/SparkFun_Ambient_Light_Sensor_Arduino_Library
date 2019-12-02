@@ -437,9 +437,9 @@ uint32_t SparkFun_Ambient_Light::_calculateLux(uint16_t _lightBits){
     _convPos = 0;
   else if (_gain == 1.00)
     _convPos = 1; 
-  else if (_gain == .125)
-    _convPos = 2; 
   else if (_gain == .25)
+    _convPos = 2; 
+  else if (_gain == .125)
     _convPos = 3; 
   else
     return UNKNOWN_ERROR;
@@ -484,13 +484,13 @@ uint16_t SparkFun_Ambient_Light::_calculateBits(uint32_t _luxVal){
   // Here the gain is checked to get the position of the conversion value
   // within the integration time arrays. These values also represent the bit
   // values for setting the gain. 
-  if (_gain == 1.00) 
+  if (_gain == 2.00) 
     _convPos = 0;
-  else if (_gain == 2.00)
+  else if (_gain == 1.00)
     _convPos = 1; 
-  else if (_gain == .125)
-    _convPos = 2; 
   else if (_gain == .25)
+    _convPos = 2; 
+  else if (_gain == .125)
     _convPos = 3; 
   else
     return UNKNOWN_ERROR;
