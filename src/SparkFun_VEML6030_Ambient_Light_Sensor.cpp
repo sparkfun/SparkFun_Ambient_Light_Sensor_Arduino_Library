@@ -101,7 +101,7 @@ void SparkFun_Ambient_Light::setIntegTime(uint16_t time){
     return;
 
   _writeRegister(SETTING_REG, INTEG_MASK, bits, INTEG_POS);  
-  uint8_t regVal = readIntegTime();
+  
 
 }
 
